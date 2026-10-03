@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Menjaga Lisan - Game Edukasi Islam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            teal: '#0D9488',
+                            mint: '#2DD4BF',
+                            amber: '#F59E0B',
+                            coral: '#FB7185',
+                            purple: '#8B5CF6',
+                            softBg: '#F0FDF4',
+                            cardBg: '#FFFFFF',
+                        }
+                    },
+                    boxShadow: {
+                        'bubble': '0 10px 25px -5px rgba(13, 148, 136, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+                        'button': '0 6px 0 0 #0F766E',
+                        'button-amber': '0 6px 0 0 #D97706',
+                        'button-coral': '0 6px 0 0 #E11D48',
+                        'button-pressed': '0 2px 0 0 transparent',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #E0F2FE 0%, #DCFCE7 50%, #FEF9C3 100%);
+            min-height: 100vh;
+        }
+        .bubble-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        .animate-bounce-slow {
+            animation: bounce 3s infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .float-anim {
+            animation: float 4s ease-in-out infinite;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-teal-200 selection:text-teal-900 min-h-screen flex flex-col justify-between">
+
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b-4 border-teal-200 px-4 py-3 shadow-sm">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('landing')">
+                <div class="w-11 h-11 bg-teal-500 rounded-2xl flex items-center justify-center text-2xl text-white shadow-md transform hover:rotate-6 transition">
+                    🗣️
+                </div>
+                <div>
+                    <h1 class="bubble-font text-xl text-teal-700 tracking-wide leading-tight">Menjaga Lisan</h1>
+                    <p class="text-xs text-slate-500 font-semibold">Petualangan Akhlak Mulia</p>
+                </div>
+            </div>
+
+            <!-- Role Selector / Navigation -->
+            <div class="flex items-center gap-2">
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center gap-1.5 transition">
+                    <i id="soundIcon" class="fas fa-volume-up text-teal-600"></i>
+                </button>
+                <button onclick="openShareModal()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition">
+                    <i class="fas fa-share-nodes"></i>
+                    <span class="hidden sm:inline">Cara Bagikan</span>
+                </button>
+                <button onclick="switchTab('teacher')" class="px-3.5 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition">
+                    <i class="fas fa-chalkboard-user"></i>
+                    <span>Mode Guru</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <section id="landingTab" class="space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-teal-100 shadow-bubble text-center relative overflow-hidden">
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-amber-200/50 rounded-full blur-xl pointer-events-none"></div>
+                <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-teal-200/50 rounded-full blur-xl pointer-events-none"></div>
+
+                <span class="inline-block px-4 py-1.5 bg-teal-100 text-teal-800 rounded-full text-xs font-extrabold uppercase tracking-widest mb-3">
+                    🌟 Game Edukasi Karakter Islam
+                </span>
+                <h2 class="bubble-font text-3xl sm:text-4xl text-teal-700 mb-3">
+                    Selamat Datang, Pahlawan Menjaga Lisan!
+                </h2>
+                <p class="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-6">
+                    Rasulullah SAW bersabda: <em>"Barangsiapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam."</em> (HR. Bukhari & Muslim)
+                </p>
+
+                <!-- Avatar Selection Box -->
+                <div class="bg-teal-50/70 border-2 border-dashed border-teal-200 rounded-2xl p-5 mb-6 max-w-lg mx-auto">
+                    <label class="block text-sm font-bold text-teal-900 mb-3">Pilih Karakter & Nama Kamu:</label>
+                    <div class="flex justify-center gap-4 mb-4">
+                        <button type="button" onclick="selectAvatar('ali')" id="avatar-ali" class="avatar-btn p-3 rounded-2xl bg-white border-4 border-teal-400 shadow-md transform hover:scale-105 transition text-center">
+                            <div class="text-4xl mb-1">👦🏻</div>
+                            <span class="text-xs font-bold text-slate-700 block">Ali</span>
+                        </button>
+                        <button type="button" onclick="selectAvatar('fatimah')" id="avatar-fatimah" class="avatar-btn p-3 rounded-2xl bg-white border-2 border-slate-200 opacity-70 shadow-sm transform hover:scale-105 transition text-center">
+                            <div class="text-4xl mb-1">🧕🏽</div>
+                            <span class="text-xs font-bold text-slate-700 block">Fatimah</span>
+                        </button>
+                        <button type="button" onclick="selectAvatar('omar')" id="avatar-omar" class="avatar-btn p-3 rounded-2xl bg-white border-2 border-slate-200 opacity-70 shadow-sm transform hover:scale-105 transition text-center">
+                            <div class="text-4xl mb-1">🧑🏽</div>
+                            <span class="text-xs font-bold text-slate-700 block">Omar</span>
+                        </button>
+                    </div>
+                    <input type="text" id="playerNameInput" placeholder="Masukkan nama panggilanmu..." class="w-full px-4 py-3 rounded-xl border-2 border-teal-300 focus:outline-none focus:border-teal-500 font-bold text-center text-teal-900 bg-white">
+                </div>
+
+                <button onclick="startGame()" class="w-full sm:w-auto px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white bubble-font text-xl rounded-2xl shadow-button hover:translate-y-1 hover:shadow-button-pressed active:translate-y-1.5 transition-all">
+                    🚀 Mulai Petualangan!
+                </button>
+            </div>
+
+            <!-- Learning Objectives & Dalil Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white rounded-2xl p-5 border-2 border-amber-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl mb-3">📖</div>
+                        <h3 class="font-bold text-amber-900 text-sm mb-1">Dalil Al-Qur'an</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed italic">"Tidak ada suatu kata pun yang diucapkannya melainkan ada di sisinya malaikat pengawas yang selalu siap (Raqib dan Atid)."</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-amber-600 mt-3 block">(QS. Qaf: 18)</span>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border-2 border-teal-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center text-xl mb-3">🛡️</div>
+                        <h3 class="font-bold text-teal-900 text-sm mb-1">Pentingnya Menjaga Lisan</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Ucapan yang baik menumbuhkan kedamaian, sedangkan lisanku dapat melukai hati kawan tanpa disadari.</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-teal-600 mt-3 block">Misi: Kumpulkan 100 Poin Kebaikan</span>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border-2 border-purple-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-xl mb-3">🏆</div>
+                        <h3 class="font-bold text-purple-900 text-sm mb-1">Lencana Akhlak</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Selesaikan 5 Tantangan Skenario untuk mendapatkan Gelar "Pahlawan Menjaga Lisan".</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-purple-600 mt-3 block">Level Skenario Interaktif</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="gameTab" class="hidden space-y-5">
+            <!-- Player Status Header -->
+            <div class="bg-white rounded-2xl p-4 border-2 border-teal-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <div id="playerAvatarDisplay" class="text-3xl bg-teal-50 p-2 rounded-xl border border-teal-200">👦🏻</div>
+                    <div>
+                        <h3 id="playerNameDisplay" class="font-extrabold text-teal-900 text-base">Pemain</h3>
+                        <p id="playerTitle" class="text-xs text-slate-500 font-semibold">Penuntut Ilmu Akhlak</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Heart HP Bar -->
+                    <div class="flex flex-col items-end">
+                        <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Hati (HP)</span>
+                        <div id="hpHearts" class="flex gap-1 text-lg">
+                            ❤️ ❤️️ ❤️
+                        </div>
+                    </div>
+                    <!-- Points Counter -->
+                    <div class="bg-amber-100 border border-amber-300 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+                        <span class="text-xl">⭐</span>
+                        <div>
+                            <span class="text-[10px] font-extrabold text-amber-800 uppercase block leading-none">Poin Akhlak</span>
+                            <span id="scoreDisplay" class="bubble-font text-amber-900 text-lg">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario Card Container -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-teal-200 shadow-bubble relative">
+                <!-- Question Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <span id="levelBadge" class="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-bold">
+                        Tantangan 1 / 5
+                    </span>
+                    <span class="text-xs font-bold text-slate-400" id="scenarioCategory">
+                        🏫 Di Sekolah
+                    </span>
+                </div>
+
+                <!-- Scenario Story Description -->
+                <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 mb-6">
+                    <div class="flex items-start gap-4">
+                        <div id="npcAvatar" class="text-4xl bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex-shrink-0">
+                            🧑‍🤝‍🧑
+                        </div>
+                        <div>
+                            <h4 id="scenarioTitle" class="font-extrabold text-slate-800 text-base mb-1">
+                                Skenario...
+                            </h4>
+                            <p id="scenarioText" class="text-slate-600 text-sm leading-relaxed">
+                                Deskripsi cerita skenario akan tampil di sini.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="optionsContainer" class="space-y-3">
+                    <!-- Options will be injected via JS -->
+                </div>
+
+                <!-- Explanation / Dalil Modal Popover inside Game -->
+                <div id="feedbackBox" class="hidden mt-6 p-5 rounded-2xl border-2 transition-all">
+                    <div class="flex items-start gap-3">
+                        <div id="feedbackIcon" class="text-3xl">💡</div>
+                        <div class="flex-grow">
+                            <h5 id="feedbackTitle" class="font-extrabold text-sm mb-1">Penjelasan</h5>
+                            <p id="feedbackText" class="text-xs sm:text-sm text-slate-700 mb-3 leading-relaxed"></p>
+
+                            <!-- Reference Box -->
+                            <div class="bg-white/80 p-3 rounded-xl border border-slate-200 text-xs">
+                                <span class="font-bold text-teal-800 block mb-0.5">📜 Rujukan Al-Qur'an / Hadits:</span>
+                                <span id="feedbackDalil" class="italic text-slate-600"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button id="nextBtn" onclick="nextScenario()" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md transition">
+                            Lanjut Ke Skenario Berikutnya ➡️
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultTab" class="hidden text-center space-y-6">
+            <div class="bg-white rounded-3xl p-8 border-4 border-teal-200 shadow-bubble max-w-lg mx-auto">
+                <div id="resultEmoji" class="text-6xl mb-3 animate-bounce">🏆</div>
+                <h2 id="resultTitle" class="bubble-font text-3xl text-teal-800 mb-2">Luar Biasa!</h2>
+                <p id="resultSubtitle" class="text-slate-600 text-sm mb-6">Kamu telah menyelesaikan seluruh tantangan menjaga lisan!</p>
+
+                <div class="bg-teal-50 border-2 border-teal-200 rounded-2xl p-4 mb-6">
+                    <div class="text-xs text-teal-700 uppercase font-bold tracking-wider mb-1">Total Poin Akhlak</div>
+                    <div id="finalScore" class="bubble-font text-4xl text-teal-900">100</div>
+                    <div id="resultBadge" class="mt-2 inline-block px-3 py-1 bg-amber-200 text-amber-900 font-bold text-xs rounded-full">
+                        🥇 Pahlawan Lisan Utama
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="resetGame()" class="px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl shadow-button hover:translate-y-0.5 transition">
+                        🔄 Main Lagi
+                    </button>
+                    <button onclick="switchTab('teacher')" class="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-button hover:translate-y-0.5 transition">
+                        📊 Lihat Mode Guru
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="teacherTab" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-200 shadow-bubble">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+                    <div>
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 font-bold text-xs rounded-full uppercase">
+                            Dashboard Pengajar
+                        </span>
+                        <h2 class="bubble-font text-2xl sm:text-3xl text-purple-900 mt-1">
+                            Laporan Progress Siswa
+                        </h2>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="addDummyStudent()" class="px-3.5 py-2 bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-xs rounded-xl transition">
+                            ➕ Simulasi Tambah Data
+                        </button>
+                        <button onclick="clearAnalytics()" class="px-3.5 py-2 bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs rounded-xl transition">
+                            🗑️ Reset Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-purple-50 border border-purple-200 p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-purple-600 block">Total Siswa Main</span>
+                        <span id="statTotalStudents" class="bubble-font text-2xl text-purple-900">1</span>
+                    </div>
+                    <div class="bg-teal-50 border border-teal-200 p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-teal-600 block">Rata-Rata Skor</span>
+                        <span id="statAvgScore" class="bubble-font text-2xl text-teal-900">0</span>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-amber-600 block">Selesai Sempurna</span>
+                        <span id="statPerfectCount" class="bubble-font text-2xl text-amber-900">0</span>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-emerald-600 block">Tingkat Kelulusan</span>
+                        <span id="statPassRate" class="bubble-font text-2xl text-emerald-900">100%</span>
+                    </div>
+                </div>
+
+                <!-- Student Score Table -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3.5">Nama Siswa</th>
+                                <th class="p-3.5">Karakter</th>
+                                <th class="p-3.5">Skor Akhir</th>
+                                <th class="p-3.5">Status HP</th>
+                                <th class="p-3.5">Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentLogsTable" class="divide-y divide-slate-100">
+                            <!-- Injected JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-500 font-semibold border-t border-slate-200/60 bg-white/50">
+        <p>Petualangan Menjaga Lisan - Game Edukasi Akhlak Islamiah &copy; 2026</p>
+    </footer>
+
+    <div id="shareModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border-4 border-amber-200 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🚀</span>
+                    <h3 class="bubble-font text-xl text-amber-900">Cara Bagikan ke Siswa</h3>
+                </div>
+                <button onclick="closeShareModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600">
+                    ✕
+                </button>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-600 mb-6">
+                Aplikasi ini berbentuk <strong>Single-File Web App</strong> gratis dan ringan. Anda dapat membagikannya kepada para siswa dengan beberapa cara mudah tanpa biaya hosting:
+            </p>
+
+            <div class="space-y-4 text-xs sm:text-sm">
+                <!-- Method 1 -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                    <h4 class="font-extrabold text-amber-950 flex items-center gap-2 mb-1">
+                        <span class="bg-amber-500 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs">1</span>
+                        GitHub Pages (Gratis & Paling Direkomendasikan)
+                    </h4>
+                    <p class="text-slate-600 mb-2">Simpan file <code>index.html</code> di repository GitHub, lalu aktifkan GitHub Pages di menu Settings menu.</p>
+                    <code class="block bg-white p-2 rounded border border-amber-200 font-mono text-[11px] text-amber-900">Repository Settings ➡️ Pages ➡️ Source: Deploy from branch 'main'</code>
+                </div>
+
+                <!-- Method 2 -->
+                <div class="bg-teal-50 border border-teal-200 p-4 rounded-2xl">
+                    <h4 class="font-extrabold text-teal-950 flex items-center gap-2 mb-1">
+                        <span class="bg-teal-500 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs">2</span>
+                        Netlify / Vercel (Drag and Drop File)
+                    </h4>
+                    <p class="text-slate-600">Cukup registrasi akun gratis di Netlify/Vercel, lalu tarik & lepas (drag-and-drop) folder berisi file <code>index.html</code> ini untuk langsung mendapatkan tautan web instant.</p>
+                </div>
+
+                <!-- Method 3 -->
+                <div class="bg-purple-50 border border-purple-200 p-4 rounded-2xl">
+                    <h4 class="font-extrabold text-purple-950 flex items-center gap-2 mb-1">
+                        <span class="bg-purple-500 text-white w-5 h-5 rounded-full inline-flex items-center justify-center text-xs">3</span>
+                        Integrasi Database Firebase / Supabase (Pengembangan Lanjutan)
+                    </h4>
+                    <p class="text-slate-600">Aplikasi ini menyimpan data hasil di browser lokal. Jika ingin menyimpan skor siswa dari jarak jauh di cloud server pengajar, tinggal hubungkan API Firestore / Supabase pada fungsi <code>saveStudentScore()</code> dalam script.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeShareModal()" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow-md transition">
+                    Mengerti, Siap Bagikan! 👍
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            playerName: "Ali",
+            playerAvatar: "👦🏻",
+            score: 0,
+            hp: 3,
+            currentScenarioIndex: 0,
+            soundEnabled: true,
+            logs: []
+        };
+
+        // Scenarios Database with References
+        const scenarios = [
+            {
+                category: "🏫 Di Sekolah",
+                title: "Teman Menjatuhkan Bekal Makanan",
+                npc: "👦🏽",
+                text: "Saat istirahat sekolah, Andi tidak sengaja menyenggol tempat makanannya hingga tumpah ke lantai. Teman-teman yang lain mulai tertawa. Apa yang sebaiknya kamu katakan?",
+                options: [
+                    {
+                        text: " Menertawakannya dan berkata: 'Aduh Andi, kamu jorok dan ceroboh banget sih!'",
+                        isCorrect: false,
+                        explanation: "Ejekan melukai hati orang lain dan termasuk sikap memperolok teman.",
+                        dalil: "HR. Muslim: 'Cukuplah seseorang dikatakan berbuat jahat apabila ia menghina saudaranya sesama Muslim.'"
+                    },
+                    {
+                        text: " Menghampirinya dan berkata: 'Tidak apa-apa Andi, ayo aku bantu bersihkan. Kamu bisa berbagi bekal denganku.'",
+                        isCorrect: true,
+                        explanation: "Ucapan yang menenangkan dan sopan menumbuhkan persaudaraan.",
+                        dalil: "QS. Al-Isra: 53: 'Dan katakanlah kepada hamba-hamba-Ku: Hendaklah mereka mengucapkan perkataan yang lebih baik (benar).'"
+                    },
+                    {
+                        text: " Pura-pura tidak melihat dan berbisik pada teman lain tentang ketololan Andi.",
+                        isCorrect: false,
+                        explanation: "Berbisik-bisik untuk membicarakan keburukan orang lain adalah perbuatan tercela.",
+                        dalil: "QS. Al-Hujurat: 12: 'Dan janganlah mencari-cari keburukan orang dan janganlah menggunjing satu sama lain.'"
+                    }
+                ]
+            },
+            {
+                category: "📱 Di Grup Chat / Media Sosial",
+                title: "Kabar Burung tentang Teman Classmate",
+                npc: "💬",
+                text: "Di grup chat kelas, ada yang mengunggah pesan: 'Kalian tahu tidak, katanya Budi kemarin mencuri pulpen guru!'. Kamu belum tahu pasti kebenarannya.",
+                options: [
+                    {
+                        text: " Menyebarkan pesan itu ke grup lain agar semua orang waspada terhadap Budi.",
+                        isCorrect: false,
+                        explanation: "Menyebarkan kabar tanpa bukti pasti adalah fitnah dan kebohongan besar.",
+                        dalil: "QS. Al-Hujurat: 6: 'Wahai orang-orang yang beriman! Jika datang kepadamu orang fasik membawa suatu berita, maka periksalah dengan teliti...'"
+                    },
+                    {
+                        text: " Menulis balasan: 'Jangan asal menuduh jika belum ada bukti nyata. Mari kita klarifikasi baik-baik.'",
+                        isCorrect: true,
+                        explanation: "Menghentikan fitnah dan mengajak untuk tabayyun (klarifikasi) adalah tindakan mulia.",
+                        dalil: "HR. Bukhari & Muslim: 'Barangsiapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam.'"
+                    },
+                    {
+                        text: " Ikut mengejek Budi di grup chat dengan kata-kata kasar.",
+                        isCorrect: false,
+                        explanation: "Mencela dan menggunakan perkataan kasar dilarang keras dalam Islam.",
+                        dalil: "HR. Tirmidzi: 'Seorang mukmin bukanlah orang yang suka mencela, melaknat, dan berkata keji/kotor.'"
+                    }
+                ]
+            },
+            {
+                category: "🏡 Di Rumah",
+                title: "Nasihat Orang Tua Saat Belajar",
+                npc: "🧕",
+                text: "Ibu memintamu untuk mematikan game dan segera mengaji. Kamu sedang asyik bermain dan merasa sedikit kesal.",
+                options: [
+                    {
+                        text: " Membentak Ibu: 'Ah Ibu berisik banget sih, bentar lagi kenapa!'",
+                        isCorrect: false,
+                        explanation: "Membentak orang tua termasuk dosa besar dan perkataan yang sangat buruk.",
+                        dalil: "QS. Al-Isra: 23: 'Maka sekali-kali janganlah kamu mengatakan kepada keduanya perkataan ah dan janganlah kamu membentak mereka...'"
+                    },
+                    {
+                        text: " Menjawab santun: 'Baik Ibu, saya simpan gamenya sekarang dan segera ambil wudhu.'",
+                        isCorrect: true,
+                        explanation: "Perkataan yang mulia dan taat kepada orang tua mendatangkan ridho Allah.",
+                        dalil: "QS. Al-Isra: 23: '...dan ucapkanlah kepada mereka perkataan yang mulia.'"
+                    },
+                    {
+                        text: " Mengabaikan ucapan Ibu dan berpura-pura tidak mendengar.",
+                        isCorrect: false,
+                        explanation: "Pura-pura cuek adalah bentuk ketidakpatuhan secara terselubung.",
+                        dalil: "HR. Tirmidzi: 'Ridho Allah tergantung pada ridho kedua orang tua.'"
+                    }
+                ]
+            },
+            {
+                category: "⚽ Lapangan Olahraga",
+                title: "Kalah Dalam Pertandingan Sepak Bola",
+                npc: "🏃‍♂️",
+                text: "Tim sepak bolamu kalah di menit terakhir karena kiper timmu melakukan kesalahan. Teman-temanmu mulai marah pada kiper tersebut.",
+                options: [
+                    {
+                        text: " Menyalahkan kiper: 'Gara-gara kamu kita kalah! Kamu tidak bisa main!'",
+                        isCorrect: false,
+                        explanation: "Mencaci teman tidak merubah keadaan dan hanya merusak silaturahmi.",
+                        dalil: "HR. Muslim: 'Memaki seorang muslim adalah kefasikan.'"
+                    },
+                    {
+                        text: " Merangkul kiper dan berkata: 'Tidak apa-apa, kamu sudah berusaha terbaik. Kita belajar lagi bersama!'",
+                        isCorrect: true,
+                        explanation: "Kata-kata motivasi dan semangat membangkitkan rasa kebersamaan.",
+                        dalil: "HR. Bukhari: 'Orang Islam itu saudara bagi orang Islam lainnya, tidak mendzaliminya dan tidak menyia-nyiakannya.'"
+                    },
+                    {
+                        text: " Mengumpat dengan kata-kata kotor karena emosi.",
+                        isCorrect: false,
+                        explanation: "Mengumpat adalah cerminan lisan yang belum terjaga dengan baik.",
+                        dalil: "HR. Ahmad: 'Lisan seorang hamba tidak akan lurus sebelum hatinya lurus.'"
+                    }
+                ]
+            },
+            {
+                category: "🤝 Lingkungan Masyarakat",
+                title: "Mendengar Rahasia atau Aib Teman",
+                npc: "🤫",
+                text: "Secara tidak sengaja kamu mendengar bahwa temanmu pernah tidak naik kelas di sekolah sebelumnya. Apa yang kamu lakukan?",
+                options: [
+                    {
+                        text: " Menjaga rahasia tersebut dan tidak menceritakannya kepada siapa pun.",
+                        isCorrect: true,
+                        explanation: "Menutup aib saudara muslim akan diganjar dengan ditutupnya aib kita oleh Allah.",
+                        dalil: "HR. Muslim: 'Barangsiapa menutup aib seorang muslim, Allah akan menutup aibnya di dunia dan akhirat.'"
+                    },
+                    {
+                        text: " Menceritakannya saat berkumpul bersama teman-teman lain sebagai bahan lelucon.",
+                        isCorrect: false,
+                        explanation: "Ghibah (menggunjing) dan membongkar aib sangat dilarang.",
+                        dalil: "QS. Al-Hujurat: 12: 'Apakah ada di antara kamu yang suka memakan daging saudaranya yang sudah mati?'"
+                    },
+                    {
+                        text: " Mengancam teman tersebut akan menyebarkan rahasianya jika tidak diberi jajan.",
+                        isCorrect: false,
+                        explanation: "Pemerasan dan pemanfaatan rahasia adalah tindakan zhalim.",
+                        dalil: "HR. Tirmidzi: 'Tidak halal harta seorang muslim kecuali dengan kerelaan hatinya.'"
+                    }
+                ]
+            }
+        ];
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // Upbeat major triad chime
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    // Low buzz tone
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.setValueAtTime(180, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'click') {
+                    // Soft click sound
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'victory') {
+                    // Victory fanfare sequence
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, now + (idx * 0.12));
+                        g.gain.setValueAtTime(0.2, now + (idx * 0.12));
+                        g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.3);
+                        o.start(now + (idx * 0.12));
+                        o.stop(now + (idx * 0.12) + 0.3);
+                    });
+                }
+            } catch(e) {
+                console.log("Audio not allowed or supported");
+            }
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (state.soundEnabled) {
+                icon.className = 'fas fa-volume-up text-teal-600';
+            } else {
+                icon.className = 'fas fa-volume-mute text-slate-400';
+            }
+            playSound('click');
+        }
+
+        function selectAvatar(name) {
+            playSound('click');
+            const avatars = {
+                'ali': { emoji: '👦🏻', name: 'Ali' },
+                'fatimah': { emoji: '🧕🏽', name: 'Fatimah' },
+                'omar': { emoji: '🧑🏽', name: 'Omar' }
+            };
+
+            document.querySelectorAll('.avatar-btn').forEach(btn => {
+                btn.classList.remove('border-teal-400', 'border-4');
+                btn.classList.add('border-slate-200', 'border-2', 'opacity-70');
+            });
+
+            const activeBtn = document.getElementById(`avatar-${name}`);
+            activeBtn.classList.remove('border-slate-200', 'border-2', 'opacity-70');
+            activeBtn.classList.add('border-teal-400', 'border-4');
+
+            state.playerAvatar = avatars[name].emoji;
+            if(!document.getElementById('playerNameInput').value) {
+                document.getElementById('playerNameInput').value = avatars[name].name;
+            }
+        }
+
+        function switchTab(tabName) {
+            playSound('click');
+            document.getElementById('landingTab').classList.add('hidden');
+            document.getElementById('gameTab').classList.add('hidden');
+            document.getElementById('resultTab').classList.add('hidden');
+            document.getElementById('teacherTab').classList.add('hidden');
+
+            if (tabName === 'landing') {
+                document.getElementById('landingTab').classList.remove('hidden');
+            } else if (tabName === 'game') {
+                document.getElementById('gameTab').classList.remove('hidden');
+            } else if (tabName === 'result') {
+                document.getElementById('resultTab').classList.remove('hidden');
+            } else if (tabName === 'teacher') {
+                document.getElementById('teacherTab').classList.remove('hidden');
+                renderTeacherDashboard();
+            }
+        }
+
+        function startGame() {
+            const inputName = document.getElementById('playerNameInput').value.trim();
+            state.playerName = inputName || "Siswa Menjaga Lisan";
+            state.score = 0;
+            state.hp = 3;
+            state.currentScenarioIndex = 0;
+
+            document.getElementById('playerNameDisplay').innerText = state.playerName;
+            document.getElementById('playerAvatarDisplay').innerText = state.playerAvatar;
+
+            switchTab('game');
+            updateStatsUI();
+            renderScenario();
+            playSound('correct');
+        }
+
+        function updateStatsUI() {
+            document.getElementById('scoreDisplay').innerText = state.score;
+            let hearts = '';
+            for(let i = 0; i < 3; i++) {
+                if(i < state.hp) hearts += '❤️ ';
+                else hearts += '🖤 ';
+            }
+            document.getElementById('hpHearts').innerText = hearts;
+        }
+
+        function renderScenario() {
+            const sc = scenarios[state.currentScenarioIndex];
+
+            document.getElementById('levelBadge').innerText = `Tantangan ${state.currentScenarioIndex + 1} / ${scenarios.length}`;
+            document.getElementById('scenarioCategory').innerText = sc.category;
+            document.getElementById('scenarioTitle').innerText = sc.title;
+            document.getElementById('scenarioText').innerText = sc.text;
+            document.getElementById('npcAvatar').innerText = sc.npc;
+
+            document.getElementById('feedbackBox').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            sc.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 hover:bg-teal-50/50 font-semibold text-slate-700 text-sm sm:text-base transition-all shadow-sm flex items-start gap-3";
+                btn.onclick = () => handleOptionClick(idx, btn);
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-extrabold flex items-center justify-center flex-shrink-0 mt-0.5">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt.text}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleOptionClick(optionIndex, btnElement) {
+            const sc = scenarios[state.currentScenarioIndex];
+            const selectedOpt = sc.options[optionIndex];
+
+            // Disable all option buttons
+            const allBtns = document.getElementById('optionsContainer').children;
+            for(let b of allBtns) {
+                b.disabled = true;
+                b.classList.add('opacity-60');
+            }
+            btnElement.classList.remove('opacity-60');
+
+            const feedbackBox = document.getElementById('feedbackBox');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackText = document.getElementById('feedbackText');
+            const feedbackDalil = document.getElementById('feedbackDalil');
+
+            if (selectedOpt.isCorrect) {
+                playSound('correct');
+                state.score += 20;
+                btnElement.classList.remove('border-slate-200');
+                btnElement.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-950');
+
+                feedbackBox.className = "mt-6 p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-950 block";
+                feedbackIcon.innerText = "🎉";
+                feedbackTitle.innerText = "Jawaban Tepat & Berakhlak Mulia!";
+                feedbackTitle.className = "font-extrabold text-sm text-emerald-900 mb-1";
+            } else {
+                playSound('wrong');
+                state.hp = Math.max(0, state.hp - 1);
+                btnElement.classList.remove('border-slate-200');
+                btnElement.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-950');
+
+                feedbackBox.className = "mt-6 p-5 rounded-2xl border-2 border-rose-300 bg-rose-50 text-rose-950 block";
+                feedbackIcon.innerText = "⚠️";
+                feedbackTitle.innerText = "Kurang Tepat, Hati-Hati Dalam Berucap!";
+                feedbackTitle.className = "font-extrabold text-sm text-rose-900 mb-1";
+            }
+
+            feedbackText.innerText = selectedOpt.explanation;
+            feedbackDalil.innerText = selectedOpt.dalil;
+
+            updateStatsUI();
+
+            // Check if game over by zero HP
+            if (state.hp <= 0) {
+                document.getElementById('nextBtn').innerText = "Selesaikan Petualangan ➡️";
+            }
+        }
+
+        function nextScenario() {
+            playSound('click');
+            if (state.hp <= 0 || state.currentScenarioIndex >= scenarios.length - 1) {
+                finishGame();
+            } else {
+                state.currentScenarioIndex++;
+                renderScenario();
+            }
+        }
+
+        function finishGame() {
+            saveStudentScore();
+            switchTab('result');
+
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            const resultEmoji = document.getElementById('resultEmoji');
+            const finalScore = document.getElementById('finalScore');
+            const resultBadge = document.getElementById('resultBadge');
+
+            finalScore.innerText = state.score;
+
+            if (state.score >= 80) {
+                playSound('victory');
+                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                resultEmoji.innerText = "👑";
+                resultTitle.innerText = "Masya Allah, Luar Biasa!";
+                resultSubtitle.innerText = `Selamat ${state.playerName}, kamu berhasil menjaga lisan dengan sangat terpuji.`;
+                resultBadge.innerText = "🥇 Pahlawan Menjaga Lisan Utama";
+            } else if (state.score >= 50) {
+                playSound('correct');
+                resultEmoji.innerText = "⭐";
+                resultTitle.innerText = "Hasil Yang Baik!";
+                resultSubtitle.innerText = `Bagus sekali ${state.playerName}, terus latih lisanmu agar selalu memancarkan kebaikan.`;
+                resultBadge.innerText = "🥈 Pejuang Menjaga Lisan";
+            } else {
+                resultEmoji.innerText = "🌱";
+                resultTitle.innerText = "Terus Belajar Ya!";
+                resultSubtitle.innerText = `Jangan berkecil hati ${state.playerName}. Pelajari kembali dalil-dalil dan coba lagi!`;
+                resultBadge.innerText = "🥉 Penuntut Ilmu Akhlak";
+            }
+        }
+
+        function resetGame() {
+            playSound('click');
+            switchTab('landing');
+        }
+
+        function saveStudentScore() {
+            const logs = JSON.parse(localStorage.getItem('lisan_student_logs') || '[]');
+            const newEntry = {
+                name: state.playerName,
+                avatar: state.playerAvatar,
+                score: state.score,
+                hp: state.hp,
+                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+            };
+            logs.unshift(newEntry);
+            localStorage.setItem('lisan_student_logs', JSON.stringify(logs));
+        }
+
+        function renderTeacherDashboard() {
+            const logs = JSON.parse(localStorage.getItem('lisan_student_logs') || '[]');
+
+            // Default dummy data if empty
+            if (logs.length === 0) {
+                logs.push(
+                    { name: "Ahmad", avatar: "👦🏻", score: 100, hp: 3, date: "Hari ini" },
+                    { name: "Siti", avatar: "🧕🏽", score: 80, hp: 2, date: "Hari ini" }
+                );
+            }
+
+            document.getElementById('statTotalStudents').innerText = logs.length;
+            const avg = Math.round(logs.reduce((acc, curr) => acc + curr.score, 0) / logs.length);
+            document.getElementById('statAvgScore').innerText = avg;
+            const perfects = logs.filter(l => l.score === 100).length;
+            document.getElementById('statPerfectCount').innerText = perfects;
+
+            const tbody = document.getElementById('studentLogsTable');
+            tbody.innerHTML = '';
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-slate-800 flex items-center gap-2">
+                        <span>${log.avatar}</span> ${log.name}
+                    </td>
+                    <td class="p-3.5 text-xs text-slate-500">Karakter Siswa</td>
+                    <td class="p-3.5"><span class="px-2.5 py-1 bg-amber-100 text-amber-900 rounded-full font-bold text-xs">${log.score} Poin</span></td>
+                    <td class="p-3.5 text-xs">${log.hp > 0 ? '❤️ '.repeat(log.hp) : '💀 Kalah'}</td>
+                    <td class="p-3.5 text-xs text-slate-400">${log.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addDummyStudent() {
+            playSound('click');
+            const dummyNames = ["Budi", "Aisyah", "Zaid", "Maryam", "Yusuf"];
+            const randomName = dummyNames[Math.floor(Math.random() * dummyNames.length)];
+            const randomScore = [60, 80, 100][Math.floor(Math.random() * 3)];
+
+            const logs = JSON.parse(localStorage.getItem('lisan_student_logs') || '[]');
+            logs.unshift({
+                name: randomName,
+                avatar: "🧑🏽",
+                score: randomScore,
+                hp: randomScore === 100 ? 3 : 2,
+                date: "Baru saja"
+            });
+            localStorage.setItem('lisan_student_logs', JSON.stringify(logs));
+            renderTeacherDashboard();
+        }
+
+        function clearAnalytics() {
+            playSound('click');
+            localStorage.removeItem('lisan_student_logs');
+            renderTeacherDashboard();
+        }
+
+        function openShareModal() {
+            playSound('click');
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            playSound('click');
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
